@@ -1,21 +1,26 @@
 import { Schema, Document, model, Model } from 'mongoose';
 
-interface Video {
+export interface VideoData {
+    fileID: string;
     title: string;
     duration: number;
-    dateUploaded: number;
-    tags: string[];
-    description: string;
+    dateUploaded?: number;
+    tags?: string[];
+    description?: string;
 }
 
 
-interface VideoDocument extends Video, Document {};
+interface VideoDocument extends VideoData, Document {};
 
 interface VideoModel extends Model<VideoDocument> {
-    textSearch: (query: string) => Promise<Video[]>
+    textSearch: (query: string) => Promise<VideoData[]>
 }
 
-const videoSchema = new Schema<Video>({
+const videoSchema = new Schema<VideoDocument>({
+    fileID: {
+        type: String,
+        required: true,
+    },
     title: {
         type: String,
         required: true,
@@ -36,7 +41,7 @@ const videoSchema = new Schema<Video>({
     description: {
         type: String,
         required: false,
-    }
+    },
 });
 
 videoSchema.index(
@@ -54,7 +59,7 @@ videoSchema.index(
     },
 );
 
-videoSchema.statics.textSearch = async function (query: string): Promise<Video[]> {
+videoSchema.statics.textSearch = async function (query: string): Promise<VideoData[]> {
     return await this.find({ $text: {$search: query} });
 }
 
