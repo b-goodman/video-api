@@ -23,5 +23,6 @@ export const handleFileUpload = (router: Router) => {
         tempFileDir : '/tmp/',
         safeFileNames: true,
         createParentPath: true,
+        debug: true,
     }));
 }

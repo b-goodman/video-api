@@ -6,6 +6,7 @@ import {UploadedFile} from 'express-fileupload';
 import path from "path";
 import shortid from 'shortid';
 import ffmpeg from "ffmpeg";
+import videoPreview, {videoFrame} from "@bgoodman/video-preview";
 
 
 export const handleVideoUpload = async (req: Request, res: Response) => {
@@ -15,6 +16,12 @@ export const handleVideoUpload = async (req: Request, res: Response) => {
     }
 
     const videoFile = req.files.video as UploadedFile;
+
+    const {videoID, tmpFilepath} = await saveVideoToDisk(videoFile);
+
+    const {filepath, previewPath, thumbnailPath, duration} = await encodeVideo(tmpFilepath);
+
+    res.send({videoID, filepath, previewPath, thumbnailPath, duration});
 
 }
 
@@ -29,9 +36,10 @@ export const saveVideoToDisk = (videoFile: UploadedFile) => {
     return new Promise<{videoID: string, tmpFilepath: string}>( (resolve, reject) => {
         const videoID = shortid.generate();
         const tmpFilepath = path.join( process.env.DATA_ROOT, videoID, "upload.tmp" );
-        videoFile.mv( `${process.env.DATA_ROOT}`, (err) => {
+        console.log(tmpFilepath);
+        videoFile.mv( tmpFilepath, (err) => {
             if (err) {
-                reject(new HTTP500Error("Could not save file to disk."));
+                reject(new HTTP500Error(err));
             } else {
                 resolve({videoID, tmpFilepath});
             }
@@ -40,19 +48,26 @@ export const saveVideoToDisk = (videoFile: UploadedFile) => {
 };
 
 
+const createVideoPreviews = async (videoFilepath: string, outputDir: string) => {
+    const previewPath = await videoPreview(videoFilepath, path.join( outputDir, `preview.mp4`), 5);
+    const thumbnailPath = await videoFrame(videoFilepath, path.join( outputDir, `thumbnail.png`), 1);
+    return {previewPath, thumbnailPath}
+}
+
 export const encodeVideo = (tmpFilepath: string) => {
-    return new Promise( async (resolve, reject) => {
+    return new Promise<{filepath: string, previewPath: string, thumbnailPath: string, duration: number}>( async (resolve, reject) => {
         try {
             const video = await new ffmpeg(tmpFilepath);
 
-            const duration = video.metadata.duration;
+            const duration = video.metadata.duration!;
             video.setVideoFormat("mp4");
 
-            return video.save(`${path.dirname(tmpFilepath)}.mp4` , (err: Error, filepath: string) => {
+            return video.save( path.join( `${path.dirname(tmpFilepath)}`, `encoded.mp4`) , async (err: Error, filepath: string) => {
                 if (err) {
                     reject(err)
                 } else {
-                    resolve({filepath, duration})
+                    const {previewPath, thumbnailPath} = await createVideoPreviews(filepath, path.dirname(tmpFilepath));
+                    resolve({filepath, previewPath, thumbnailPath, duration})
                 }
             });
 
