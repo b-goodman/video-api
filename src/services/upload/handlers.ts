@@ -1,3 +1,4 @@
+import fs from "fs";
 import { models } from './../../models';
 import { HTTP500Error } from './../../utils/httpErrors';
 import { VideoData } from "../../models/video";
@@ -21,8 +22,22 @@ export const handleVideoUpload = async (req: Request, res: Response) => {
 
     const {filepath, previewPath, thumbnailPath, duration} = await encodeVideo(tmpFilepath);
 
+    await deleteTempUpload(tmpFilepath);
+
     res.send({videoID, filepath, previewPath, thumbnailPath, duration});
 
+}
+
+const deleteTempUpload = (tmpFilepath: string) => {
+    return new Promise( (resolve, reject) => {
+        fs.unlink(tmpFilepath, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(tmpFilepath);
+            }
+        })
+    })
 }
 
 
@@ -49,9 +64,10 @@ export const saveVideoToDisk = (videoFile: UploadedFile) => {
 
 
 const createVideoPreviews = async (videoFilepath: string, outputDir: string) => {
-    const previewPath = await videoPreview(videoFilepath, path.join( outputDir, `preview.mp4`), 5);
-    const thumbnailPath = await videoFrame(videoFilepath, path.join( outputDir, `thumbnail.png`), 1);
-    return {previewPath, thumbnailPath}
+    const opts = {scale: {width: 210}};
+    const previewResp = await videoPreview(videoFilepath, path.join( outputDir, `preview.mp4`), opts );
+    const thumbnailResp = await videoFrame(videoFilepath, path.join( outputDir, `thumbnail.png`), opts );
+    return {previewPath: previewResp.output, thumbnailPath: thumbnailResp.output }
 }
 
 export const encodeVideo = (tmpFilepath: string) => {

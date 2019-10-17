@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@bgoodman/video-preview@^1.0.4-beta":
-  version "1.0.4-beta"
-  resolved "https://registry.yarnpkg.com/@bgoodman/video-preview/-/video-preview-1.0.4-beta.tgz#1700abadd024292110736d0516008963d5f248a7"
-  integrity sha512-agRfB3rXht4TFIZSHegYYwm3/Drq+55A1uOsPG5pUketPZEN+BmA4ejf9pG5hgPGw/UoMnWW8qRS0ShY76l2HQ==
+"@bgoodman/video-preview@^1.0.7-beta":
+  version "1.0.7-beta"
+  resolved "https://registry.yarnpkg.com/@bgoodman/video-preview/-/video-preview-1.0.7-beta.tgz#87fb66b5acf074c7c890cb754b263ca46a4698da"
+  integrity sha512-/7eldd4o1j7GyXtBfeshuHHEtM+HCfQ3bdYbFV5L9IJh6yybstIyugiB7/X35I7GAQoJd8rDLW/ZtBv/2dcQDA==
 
 "@types/bluebird@*":
   version "3.5.27"
