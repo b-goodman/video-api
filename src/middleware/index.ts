@@ -3,7 +3,9 @@ import {
     handleCors,
     handleBodyRequestParsing,
     handleCompression,
-    handleFileUpload
+    handleFileUpload,
+    handleHelmet,
+    handleMorgan,
 } from "./common";
 
-export default [handleCors, handleBodyRequestParsing, handleCompression, handleFileUpload];
+export default [handleCors, handleHelmet, handleMorgan, handleBodyRequestParsing, handleCompression, handleFileUpload];

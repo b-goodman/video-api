@@ -1,6 +1,8 @@
 import fs from "fs";
+import { promisify } from "util";
 import { models } from './../../models';
 import { HTTP500Error } from './../../utils/httpErrors';
+import { FileData } from './../../models/file';
 import { VideoData } from "../../models/video";
 import { Request, Response } from "express";
 import {UploadedFile} from 'express-fileupload';
@@ -8,7 +10,7 @@ import path from "path";
 import shortid from 'shortid';
 import ffmpeg from "ffmpeg";
 import videoPreview, {videoFrame} from "@bgoodman/video-preview";
-
+const stat = promisify(fs.stat);
 
 export const handleVideoUpload = async (req: Request, res: Response) => {
 
@@ -20,11 +22,22 @@ export const handleVideoUpload = async (req: Request, res: Response) => {
 
     const {videoID, tmpFilepath} = await saveVideoToDisk(videoFile);
 
-    const {filepath, previewPath, thumbnailPath, duration} = await encodeVideo(tmpFilepath);
+    const {filepath, filesize, previewPath, thumbnailPath, duration} = await encodeVideo(tmpFilepath);
+
+    const videoData = {
+        videoID,
+        duration: duration,
+        title: req.body.title,
+        tags: req.body.tags || [],
+        description: req.body.description,
+    };
+
+    const stat = await saveVideoToDatabase(videoData);
+    await saveFileToDatabase({videoID, filepath, filesize, previewPath, thumbnailPath});
 
     await deleteTempUpload(tmpFilepath);
 
-    res.send({videoID, filepath, previewPath, thumbnailPath, duration});
+    res.send({videoData, stat});
 
 }
 
@@ -40,14 +53,17 @@ const deleteTempUpload = (tmpFilepath: string) => {
     })
 }
 
-
 const saveVideoToDatabase = (videoData: VideoData) => {
     const video = new models.Video(videoData);
     return video.save();
 }
 
+const saveFileToDatabase = (fileData: FileData) => {
+    const file = new models.File(fileData);
+    return file.save();
+}
 
-export const saveVideoToDisk = (videoFile: UploadedFile) => {
+const saveVideoToDisk = (videoFile: UploadedFile) => {
     return new Promise<{videoID: string, tmpFilepath: string}>( (resolve, reject) => {
         const videoID = shortid.generate();
         const tmpFilepath = path.join( process.env.DATA_ROOT, videoID, "upload.tmp" );
@@ -62,7 +78,6 @@ export const saveVideoToDisk = (videoFile: UploadedFile) => {
     })
 };
 
-
 const createVideoPreviews = async (videoFilepath: string, outputDir: string) => {
     const opts = {scale: {width: 210}};
     const previewResp = await videoPreview(videoFilepath, path.join( outputDir, `preview.mp4`), opts );
@@ -70,20 +85,24 @@ const createVideoPreviews = async (videoFilepath: string, outputDir: string) => 
     return {previewPath: previewResp.output, thumbnailPath: thumbnailResp.output }
 }
 
-export const encodeVideo = (tmpFilepath: string) => {
-    return new Promise<{filepath: string, previewPath: string, thumbnailPath: string, duration: number}>( async (resolve, reject) => {
+
+
+const encodeVideo = (tmpFilepath: string) => {
+    return new Promise<{filepath: string, filesize: number, previewPath: string, thumbnailPath: string, duration: number}>( async (resolve, reject) => {
         try {
             const video = await new ffmpeg(tmpFilepath);
 
-            const duration = video.metadata.duration!;
+            const duration = (video.metadata.duration! as any).seconds as number;
             video.setVideoFormat("mp4");
 
             return video.save( path.join( `${path.dirname(tmpFilepath)}`, `encoded.mp4`) , async (err: Error, filepath: string) => {
                 if (err) {
                     reject(err)
                 } else {
+                    const fileStat = await stat(filepath);
+                    const filesize = fileStat.size;
                     const {previewPath, thumbnailPath} = await createVideoPreviews(filepath, path.dirname(tmpFilepath));
-                    resolve({filepath, previewPath, thumbnailPath, duration})
+                    resolve({filepath, filesize, previewPath, thumbnailPath, duration})
                 }
             });
 

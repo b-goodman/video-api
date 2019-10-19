@@ -12,3 +12,17 @@ export const checkSearchParams = (
         next();
     }
 };
+
+export const checkUploadParams = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    if (!req.body.title) {
+        throw new HTTP400Error("Missing 'title' parameter");
+    } else if (!req.body.description) {
+        throw new HTTP400Error("Missing 'description' parameter");
+    } else {
+        next();
+    }
+};

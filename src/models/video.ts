@@ -1,7 +1,7 @@
 import { Schema, Document, model, Model } from 'mongoose';
 
 export interface VideoData {
-    fileID: string;
+    videoID: string;
     title: string;
     duration: number;
     dateUploaded?: number;
@@ -17,9 +17,10 @@ interface VideoModel extends Model<VideoDocument> {
 }
 
 const videoSchema = new Schema<VideoDocument>({
-    fileID: {
+    videoID: {
         type: String,
         required: true,
+        unique: true,
     },
     title: {
         type: String,
