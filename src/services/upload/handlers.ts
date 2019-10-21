@@ -2,7 +2,6 @@ import fs from "fs";
 import { promisify } from "util";
 import { models } from './../../models';
 import { HTTP500Error } from './../../utils/httpErrors';
-import { FileData } from './../../models/file';
 import { VideoData } from "../../models/video";
 import { Request, Response } from "express";
 import {UploadedFile} from 'express-fileupload';
@@ -26,6 +25,7 @@ export const handleVideoUpload = async (req: Request, res: Response) => {
 
     const videoData = {
         videoID,
+        filesize,
         duration: duration,
         title: req.body.title,
         tags: req.body.tags || [],
@@ -33,7 +33,6 @@ export const handleVideoUpload = async (req: Request, res: Response) => {
     };
 
     const stat = await saveVideoToDatabase(videoData);
-    await saveFileToDatabase({videoID, filepath, filesize, previewPath, thumbnailPath});
 
     await deleteTempUpload(tmpFilepath);
 
@@ -56,11 +55,6 @@ const deleteTempUpload = (tmpFilepath: string) => {
 const saveVideoToDatabase = (videoData: VideoData) => {
     const video = new models.Video(videoData);
     return video.save();
-}
-
-const saveFileToDatabase = (fileData: FileData) => {
-    const file = new models.File(fileData);
-    return file.save();
 }
 
 const saveVideoToDisk = (videoFile: UploadedFile) => {

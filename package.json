@@ -17,6 +17,7 @@
     "@types/mongoose": "^5.5.19",
     "@types/node": "^12.7.11",
     "@types/request-promise": "^4.1.44",
+    "@types/rimraf": "^2.0.2",
     "@types/shortid": "^0.0.29",
     "tsc-watch": "^4.0.0",
     "typescript": "^3.6.4"
@@ -35,6 +36,7 @@
     "mongoose": "^5.7.3",
     "morgan": "^1.9.1",
     "request-promise": "^4.2.4",
+    "rimraf": "^3.0.0",
     "shortid": "^2.2.15"
   }
 }

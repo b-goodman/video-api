@@ -13,6 +13,19 @@ export const checkSearchParams = (
     }
 };
 
+
+export const checkFindParams = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    if (!req.query.videoID) {
+        throw new HTTP400Error("Missing 'videoID' parameter");
+    } else {
+        next();
+    }
+};
+
 export const checkUploadParams = (
     req: Request,
     res: Response,
@@ -26,3 +39,5 @@ export const checkUploadParams = (
         next();
     }
 };
+
+

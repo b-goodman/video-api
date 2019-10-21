@@ -2,6 +2,7 @@ import { Schema, Document, model, Model } from 'mongoose';
 
 export interface VideoData {
     videoID: string;
+    filesize: number,
     title: string;
     duration: number;
     dateUploaded?: number;
@@ -10,7 +11,7 @@ export interface VideoData {
 }
 
 
-interface VideoDocument extends VideoData, Document {};
+export interface VideoDocument extends VideoData, Document {};
 
 interface VideoModel extends Model<VideoDocument> {
     textSearch: (query: string) => Promise<VideoData[]>
@@ -21,6 +22,10 @@ const videoSchema = new Schema<VideoDocument>({
         type: String,
         required: true,
         unique: true,
+    },
+    filesize: {
+        type: Number,
+        required: true,
     },
     title: {
         type: String,
