@@ -3,6 +3,7 @@ import { Schema, Document, model, Model } from 'mongoose';
 export interface VideoData {
     videoID: string;
     filesize: number,
+    previewFilesize: number,
     title: string;
     duration: number;
     dateUploaded?: number;
@@ -24,6 +25,10 @@ const videoSchema = new Schema<VideoDocument>({
         unique: true,
     },
     filesize: {
+        type: Number,
+        required: true,
+    },
+    previewFilesize: {
         type: Number,
         required: true,
     },

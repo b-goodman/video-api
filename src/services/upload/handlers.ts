@@ -21,11 +21,12 @@ export const handleVideoUpload = async (req: Request, res: Response) => {
 
     const {videoID, tmpFilepath} = await saveVideoToDisk(videoFile);
 
-    const {filepath, filesize, previewPath, thumbnailPath, duration} = await encodeVideo(tmpFilepath);
+    const {filepath, filesize, previewPath, thumbnailPath, previewFilesize, duration} = await encodeVideo(tmpFilepath);
 
     const videoData = {
         videoID,
         filesize,
+        previewFilesize,
         duration: duration,
         title: req.body.title,
         tags: req.body.tags || [],
@@ -76,13 +77,15 @@ const createVideoPreviews = async (videoFilepath: string, outputDir: string) => 
     const opts = {scale: {width: 210}};
     const previewResp = await videoPreview(videoFilepath, path.join( outputDir, `preview.mp4`), opts );
     const thumbnailResp = await videoFrame(videoFilepath, path.join( outputDir, `thumbnail.png`), opts );
-    return {previewPath: previewResp.output, thumbnailPath: thumbnailResp.output }
+    const fileStat = await stat(previewResp.output);
+    const filesize = fileStat.size;
+    return {previewPath: previewResp.output, previewFilesize: filesize, thumbnailPath: thumbnailResp.output }
 }
 
 
 
 const encodeVideo = (tmpFilepath: string) => {
-    return new Promise<{filepath: string, filesize: number, previewPath: string, thumbnailPath: string, duration: number}>( async (resolve, reject) => {
+    return new Promise<{filepath: string, filesize: number, previewPath: string, previewFilesize: number, thumbnailPath: string, duration: number}>( async (resolve, reject) => {
         try {
             const video = await new ffmpeg(tmpFilepath);
 
@@ -95,8 +98,8 @@ const encodeVideo = (tmpFilepath: string) => {
                 } else {
                     const fileStat = await stat(filepath);
                     const filesize = fileStat.size;
-                    const {previewPath, thumbnailPath} = await createVideoPreviews(filepath, path.dirname(tmpFilepath));
-                    resolve({filepath, filesize, previewPath, thumbnailPath, duration})
+                    const {previewPath, previewFilesize, thumbnailPath} = await createVideoPreviews(filepath, path.dirname(tmpFilepath));
+                    resolve({filepath, filesize, previewPath, previewFilesize, thumbnailPath, duration})
                 }
             });
 

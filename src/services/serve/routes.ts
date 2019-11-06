@@ -1,5 +1,5 @@
 import { checkFindParams } from "../../middleware/checks";
-import { streamVideo } from "./handlers";
+import { streamVideo, serveThumbnail } from "./handlers";
 
 
 export default [
@@ -8,7 +8,15 @@ export default [
         method: "get",
         handler: [
             checkFindParams,
-            streamVideo
+            streamVideo,
+        ]
+    },
+    {
+        path: "/video/thumbnail",
+        method: "get",
+        handler: [
+            checkFindParams,
+            serveThumbnail,
         ]
     }
 ];
