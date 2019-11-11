@@ -6,7 +6,7 @@ export const checkSearchParams = (
     res: Response,
     next: NextFunction
 ) => {
-    if (!req.query.q) {
+    if (!req.query.query) {
         throw new HTTP400Error("Missing q parameter");
     } else {
         next();
@@ -14,12 +14,12 @@ export const checkSearchParams = (
 };
 
 
-export const checkFindParams = (
+export const checkQueryParams = (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    if (!req.query.videoID) {
+    if (!req.params.videoID) {
         throw new HTTP400Error("Missing 'videoID' parameter");
     } else {
         next();
@@ -35,6 +35,18 @@ export const checkUploadParams = (
         throw new HTTP400Error("Missing 'title' parameter");
     } else if (!req.body.description) {
         throw new HTTP400Error("Missing 'description' parameter");
+    } else {
+        next();
+    }
+};
+
+export const checkUserParams = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    if (!req.body.name || !req.body.password) {
+        throw new HTTP400Error("Missing parameter");
     } else {
         next();
     }

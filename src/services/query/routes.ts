@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
 import { checkQueryParams } from "../../middleware/checks";
-import { deleteVideo } from "./handlers";
+import { queryVideo } from "./handlers";
 
 export default [
     {
-        path: "/video",
-        method: "delete",
+        path: "/video/about/:videoID",
+        method: "get",
         handler: [
             checkQueryParams,
             async (req: Request, res: Response) => {
-                const stat = await deleteVideo(req.query.videoID)
+                const stat = await queryVideo(req.params.videoID)
                 res.send(stat);
             }
         ]

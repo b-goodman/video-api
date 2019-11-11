@@ -4,7 +4,7 @@ import {models} from "../../models";
 import { Request, Response } from "express";
 
 const streamVideo = async (req: Request, res: Response) => {
-    const videoID = req.query.videoID;
+    const videoID = req.params.videoID;
     const isPreview = req.query.preview || false;
 
     const videoFilepath = path.join( process.env.DATA_ROOT, videoID, isPreview ? "preview.mp4" : "encoded.mp4" );

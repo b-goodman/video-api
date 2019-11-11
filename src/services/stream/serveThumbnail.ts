@@ -1,11 +1,11 @@
-import { HTTP500Error } from './../../utils/httpErrors';
+import { HTTP500Error } from '../../utils/httpErrors';
 import fs from "fs";
 import path from "path";
 import {models} from "../../models";
 import { Request, Response } from "express";
 
 const serveThumbnail = async (req: Request, res: Response) => {
-    const videoID = req.query.videoID;
+    const videoID = req.params.videoID;
 
     const thumbnailFilepath = path.join( process.env.DATA_ROOT, videoID, "thumbnail.png" );
 
@@ -18,7 +18,7 @@ const serveThumbnail = async (req: Request, res: Response) => {
         res.writeHead(200, head)
         fs.createReadStream(thumbnailFilepath).pipe(res)
     } catch {
-        throw new HTTP500Error(`Preview for video ${videoID} not found.`)
+        throw new HTTP500Error(res, `Preview for video ${videoID} not found.`)
     }
 };
 

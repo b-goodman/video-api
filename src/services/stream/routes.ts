@@ -1,21 +1,21 @@
-import { checkFindParams } from "../../middleware/checks";
+import { checkQueryParams } from "../../middleware/checks";
 import { streamVideo, serveThumbnail } from "./handlers";
 
 
 export default [
     {
-        path: "/video",
+        path: "/video/:videoID",
         method: "get",
         handler: [
-            checkFindParams,
+            checkQueryParams,
             streamVideo,
         ]
     },
     {
-        path: "/video/thumbnail",
+        path: "/video/thumbnail/:videoID",
         method: "get",
         handler: [
-            checkFindParams,
+            checkQueryParams,
             serveThumbnail,
         ]
     }

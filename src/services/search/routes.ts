@@ -9,7 +9,7 @@ export default [
         handler: [
             checkSearchParams,
             async (req: Request, res: Response) => {
-                const videos = await searchVideos(req.query.q)
+                const videos = await searchVideos(req.query.query)
                 res.send(videos);
             }
         ]
