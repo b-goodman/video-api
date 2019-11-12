@@ -4,7 +4,7 @@ import { queryVideo } from "./handlers";
 
 export default [
     {
-        path: "/video/about/:videoID",
+        path: "/query/:videoID",
         method: "get",
         handler: [
             checkQueryParams,
@@ -13,5 +13,5 @@ export default [
                 res.send(stat);
             }
         ]
-    }
+    },
 ];
