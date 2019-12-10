@@ -5,7 +5,8 @@
   "author": "Ben Goodman <bgoodman@wolfram.com>",
   "license": "MIT",
   "scripts": {
-    "start": "tsc-watch --onSuccess \"node ./dist/server.js\""
+    "start": "tsc-watch --onSuccess \"node ./dist/server.js\"",
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
