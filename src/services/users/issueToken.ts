@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import User from "../../models/User";
+import User from "../../models/user";
 import { HTTP401Error, HTTP500Error,} from './../../utils/httpErrors';
 
 

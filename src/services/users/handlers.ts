@@ -1,6 +1,6 @@
 import { HTTP401Error, HTTP500Error, HTTP404Error, HTTP400Error } from './../../utils/httpErrors';
 import bcrypt from 'bcrypt';
-import User from "../../models/User";
+import User from "../../models/user";
 import { Request, Response } from "express";
 
 import issueToken from "./issueToken";
