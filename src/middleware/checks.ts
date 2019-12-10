@@ -7,7 +7,7 @@ export const checkSearchParams = (
     next: NextFunction
 ) => {
     if (!req.query.query) {
-        throw new HTTP400Error("Missing q parameter");
+        throw new HTTP400Error("Missing 'query' parameter.");
     } else {
         next();
     }
@@ -20,7 +20,7 @@ export const checkQueryParams = (
     next: NextFunction
 ) => {
     if (!req.params.videoID) {
-        throw new HTTP400Error("Missing 'videoID' parameter");
+        throw new HTTP400Error("Missing 'videoID' parameter.");
     } else {
         next();
     }
