@@ -4,7 +4,7 @@ import { searchVideos, latestVideos } from "./handlers";
 
 export default [
     {
-        path: "/search",
+        path: "/api/search",
         method: "get",
         handler: [
             checkSearchParams,
@@ -15,7 +15,7 @@ export default [
         ]
     },
     {
-        path: "/search/latest",
+        path: "/api/search/latest",
         method: "get",
         handler: [
             // checkSearchParams,
