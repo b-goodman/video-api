@@ -6,7 +6,7 @@ import { validateToken } from './../../middleware/auth';
 
 export default [
     {
-        path: "/users",
+        path: "/api/users",
         method: "post",
         handler: [
             checkUserParams,
@@ -14,7 +14,7 @@ export default [
         ]
     },
     {
-        path: "/users",
+        path: "/api/users",
         method: "delete",
         handler: [
             validateToken,
@@ -22,7 +22,7 @@ export default [
         ]
     },
     {
-        path: "/login",
+        path: "/api/login",
         method: "post",
         handler: [
             checkUserParams,
@@ -30,7 +30,7 @@ export default [
         ]
     },
     {
-        path: "/isAuth",
+        path: "/api/isAuth",
         method: "get",
         handler: [
             validateToken,

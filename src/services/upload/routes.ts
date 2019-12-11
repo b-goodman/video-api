@@ -5,7 +5,7 @@ import { validateToken } from "../../middleware/auth";
 
 export default [
     {
-        path: "/upload",
+        path: "/api/upload",
         method: "post",
         handler: [
             validateToken,

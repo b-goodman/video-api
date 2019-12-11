@@ -4,7 +4,7 @@ import { deleteVideo } from "./handlers";
 
 export default [
     {
-        path: "/video",
+        path: "/api/video",
         method: "delete",
         handler: [
             checkQueryParams,

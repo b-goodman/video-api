@@ -4,7 +4,7 @@ import { streamVideo, serveThumbnail } from "./handlers";
 
 export default [
     {
-        path: "/video/:videoID",
+        path: "/api/video/:videoID",
         method: "get",
         handler: [
             checkQueryParams,
@@ -12,7 +12,7 @@ export default [
         ]
     },
     {
-        path: "/video/thumbnail/:videoID",
+        path: "/api/video/thumbnail/:videoID",
         method: "get",
         handler: [
             checkQueryParams,
