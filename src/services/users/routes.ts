@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { addUser, issueToken, deleteUser } from "./handlers";
+import { addUser, issueToken, deleteUser, getUserVideos } from "./handlers";
 import { checkUserParams } from "../../middleware/checks";
-import { validateToken } from './../../middleware/auth';
+import { validateToken, AuthenticatedRequest } from './../../middleware/auth';
 
 
 export default [
@@ -39,4 +39,13 @@ export default [
             }
         ]
     },
+    {
+        path: "/api/users/uploads",
+        method: "get",
+        handler: [
+            validateToken,
+            // checkUserUploadParams,
+            getUserVideos,
+        ]
+    }
 ];

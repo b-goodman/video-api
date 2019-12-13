@@ -19,7 +19,7 @@ export const checkQueryParams = (
     res: Response,
     next: NextFunction
 ) => {
-    if (!req.params.videoID) {
+    if (!req.query.videoID) {
         throw new HTTP400Error("Missing 'videoID' parameter.");
     } else {
         next();
@@ -51,5 +51,18 @@ export const checkUserParams = (
         next();
     }
 };
+
+
+// export const checkUser = (
+//     req: Request,
+//     res: Response,
+//     next: NextFunction
+// ) => {
+//     if (!req.body.name || !req.body.password) {
+//         throw new HTTP400Error("Missing parameter");
+//     } else {
+//         next();
+//     }
+// };
 
 

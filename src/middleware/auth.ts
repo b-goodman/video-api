@@ -4,6 +4,14 @@ import jwt from 'jsonwebtoken';
 import fs from "fs";
 import path from "path";
 
+export interface AuthenticatedRequest extends Request {
+    user: string
+}
+
+interface JwtPayload extends Object{
+    user: string;
+}
+
 export const checkUserAuth = (
     req: Request,
     res: Response,
@@ -17,7 +25,7 @@ export const checkUserAuth = (
 };
 
 export const validateToken = (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
 ) => {
@@ -44,6 +52,8 @@ export const validateToken = (
                 // We call next to pass execution to the subsequent middleware
                 console.log("verification result: ", result)
                 if (result) {
+                    console.log(result);
+                    req.user = (result as JwtPayload).user;
                     next()
                 }else{
                     new HTTP401Error(res, "Unauthorized");

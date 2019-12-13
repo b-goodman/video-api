@@ -1,18 +1,17 @@
 import fs from "fs";
-import { promisify } from "util";
-import { models } from './../../models';
-import { HTTP500Error } from './../../utils/httpErrors';
-import { VideoData } from "../../models/video";
-import { Request, Response } from "express";
 import {UploadedFile} from 'express-fileupload';
+import { promisify } from "util";
+import { HTTP500Error } from './../../utils/httpErrors';
+import Video, { VideoData } from "../../models/video";
+import {AuthenticatedRequest} from "../../middleware/auth";
+import { Request, Response } from "express";
 import path from "path";
 import shortid from 'shortid';
 import ffmpeg from "ffmpeg";
 import videoPreview, {videoFrame} from "@bgoodman/video-preview";
 const stat = promisify(fs.stat);
 
-export const handleVideoUpload = async (req: Request, res: Response) => {
-
+export const handleVideoUpload = async (req: AuthenticatedRequest, res: Response) => {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
@@ -31,6 +30,7 @@ export const handleVideoUpload = async (req: Request, res: Response) => {
         title: req.body.title,
         tags: req.body.tags || [],
         description: req.body.description,
+        ownerUsername: req.user,
     };
 
     const stat = await saveVideoToDatabase(videoData);
@@ -38,8 +38,7 @@ export const handleVideoUpload = async (req: Request, res: Response) => {
     await deleteTempUpload(tmpFilepath);
 
     res.send({videoData, stat});
-
-}
+};
 
 const deleteTempUpload = (tmpFilepath: string) => {
     return new Promise( (resolve, reject) => {
@@ -51,12 +50,12 @@ const deleteTempUpload = (tmpFilepath: string) => {
             }
         })
     })
-}
+};
 
 const saveVideoToDatabase = (videoData: VideoData) => {
-    const video = new models.Video(videoData);
+    const video = new Video(videoData);
     return video.save();
-}
+};
 
 const saveVideoToDisk = (videoFile: UploadedFile) => {
     return new Promise<{videoID: string, tmpFilepath: string}>( (resolve, reject) => {
@@ -80,9 +79,7 @@ const createVideoPreviews = async (videoFilepath: string, outputDir: string) => 
     const fileStat = await stat(previewResp.output);
     const filesize = fileStat.size;
     return {previewPath: previewResp.output, previewFilesize: filesize, thumbnailPath: thumbnailResp.output }
-}
-
-
+};
 
 const encodeVideo = (tmpFilepath: string) => {
     return new Promise<{filepath: string, filesize: number, previewPath: string, previewFilesize: number, thumbnailPath: string, duration: number}>( async (resolve, reject) => {
@@ -108,4 +105,4 @@ const encodeVideo = (tmpFilepath: string) => {
             console.log(e.msg);
         }
     })
-}
+};

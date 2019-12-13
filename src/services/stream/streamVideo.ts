@@ -39,6 +39,8 @@ const streamVideo = async (req: Request, res: Response) => {
             res.writeHead(200, head)
             fs.createReadStream(videoFilepath).pipe(res)
         }
+    } else {
+        res.status(400).send(`ID '${videoID}' not found.`)
     }
 }
 
