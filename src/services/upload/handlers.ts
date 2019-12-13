@@ -16,28 +16,26 @@ export const handleVideoUpload = async (req: AuthenticatedRequest, res: Response
         return res.status(400).send('No files were uploaded.');
     }
 
-    const videoFile = req.files.video as UploadedFile;
-
-    const {videoID, tmpFilepath} = await saveVideoToDisk(videoFile);
-
-    const {filepath, filesize, previewPath, thumbnailPath, previewFilesize, duration} = await encodeVideo(tmpFilepath);
-
-    const videoData = {
-        videoID,
-        filesize,
-        previewFilesize,
-        duration: duration,
-        title: req.body.title,
-        tags: req.body.tags || [],
-        description: req.body.description,
-        ownerUsername: req.user,
-    };
-
-    const stat = await saveVideoToDatabase(videoData);
-
-    await deleteTempUpload(tmpFilepath);
-
-    res.send({videoData, stat});
+    try {
+        const videoFile = req.files.video as UploadedFile;
+        const {videoID, tmpFilepath} = await saveVideoToDisk(videoFile);
+        const {filepath, filesize, previewPath, thumbnailPath, previewFilesize, duration} = await encodeVideo(tmpFilepath);
+        const videoData = {
+            videoID,
+            filesize,
+            previewFilesize,
+            duration: duration,
+            title: req.body.title,
+            tags: req.body.tags || [],
+            description: req.body.description,
+            ownerUsername: req.user,
+        };
+        const stat = await saveVideoToDatabase(videoData);
+        await deleteTempUpload(tmpFilepath);
+        res.send({videoData, stat});
+    } catch (err) {
+        throw new HTTP500Error(res, err);
+    }
 };
 
 const deleteTempUpload = (tmpFilepath: string) => {
@@ -73,12 +71,16 @@ const saveVideoToDisk = (videoFile: UploadedFile) => {
 };
 
 const createVideoPreviews = async (videoFilepath: string, outputDir: string) => {
-    const opts = {scale: {width: 210}};
-    const previewResp = await videoPreview(videoFilepath, path.join( outputDir, `preview.mp4`), opts );
-    const thumbnailResp = await videoFrame(videoFilepath, path.join( outputDir, `thumbnail.png`), opts );
-    const fileStat = await stat(previewResp.output);
-    const filesize = fileStat.size;
-    return {previewPath: previewResp.output, previewFilesize: filesize, thumbnailPath: thumbnailResp.output }
+    const opts = {scale: {width: 210, height: -2}};
+    try {
+        const previewResp = await videoPreview(videoFilepath, path.join( outputDir, `preview.mp4`), opts );
+        const thumbnailResp = await videoFrame(videoFilepath, path.join( outputDir, `thumbnail.png`), opts );
+        const fileStat = await stat(previewResp.output);
+        const filesize = fileStat.size;
+        return {previewPath: previewResp.output, previewFilesize: filesize, thumbnailPath: thumbnailResp.output }
+    } catch (err) {
+        throw err;
+    }
 };
 
 const encodeVideo = (tmpFilepath: string) => {
