@@ -1,3 +1,4 @@
+import io from "socket.io";
 import { Router, Request, Response, NextFunction } from "express";
 
 type Wrapper = ((router: Router) => void);
@@ -23,9 +24,17 @@ type Route = {
     handler: Handler | Handler[];
 };
 
+type SocketHandler = (io: io.Server) => Promise<void> | void;
+
 export const applyRoutes = (routes: Route[], router: Router) => {
     for (const route of routes) {
         const { method, path, handler } = route;
         (router as any)[method](path, handler);
+    }
+};
+
+export const applySockets = (sockets: SocketHandler[], io: io.Server) => {
+    for (const socket of sockets) {
+        (socket)(io);
     }
 };

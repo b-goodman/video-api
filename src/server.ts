@@ -1,10 +1,12 @@
 import dotenv from "dotenv";
 import http from "http";
+import io from "socket.io";
 import express from "express";
-import { applyMiddleware, applyRoutes } from "./utils";
+import { applyMiddleware, applyRoutes, applySockets } from "./utils";
 import middleware from "./middleware";
 import errorHandlers from "./middleware/errorHandlers";
 import routes from "./services";
+import sockets from "./sockets";
 import { connectDb } from "./models/index";
 
 dotenv.config();
@@ -26,6 +28,9 @@ applyMiddleware(errorHandlers, router);
 
 const PORT = process.env.SERVER_PORT;
 const server = http.createServer(router);
+
+const socketServer = io().attach(server);
+applySockets(sockets, socketServer);
 
 connectDb().then( async () => {
     server.listen(PORT, () =>
