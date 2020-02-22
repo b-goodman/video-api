@@ -8,10 +8,12 @@ import { HTTP401Error, HTTP500Error,} from './../../utils/httpErrors';
 
 
 const issueToken = (req: Request, res: Response) => {
-    const name = req.body.name as string;
+    const username = req.body.username as string;
     const password = req.body.password as string;
 
-    User.findOne({name}, (err, user) => {
+    console.log("auth---------------")
+
+    User.findOne({username}, (err, user) => {
         if (!err && user) {
             // We could compare passwords in our model instead of below
             bcrypt.compare(password, user.password).then(match => {
@@ -20,7 +22,7 @@ const issueToken = (req: Request, res: Response) => {
 
                     // Create a token
                     const payload = {
-                        user: user.name
+                        username: user.username
                     };
                     const options = {
                         expiresIn: process.env.TOKEN_TTL,
@@ -30,8 +32,9 @@ const issueToken = (req: Request, res: Response) => {
                     const key = fs.readFileSync( path.join( __dirname, "../../../private.key"), "utf-8");
                     const token = jwt.sign(payload, key, options);
 
-                    res.status(status).send({token, status, result: user});
+                    res.status(status).send({token, status});
                 } else {
+                    console.log("invalid password")
                     new HTTP401Error(res, "Authentication error");
                 }
             }).catch( (err) => {
@@ -39,6 +42,7 @@ const issueToken = (req: Request, res: Response) => {
                 new HTTP500Error(res, "Error authenticating user.");
             });
         } else {
+            console.log("unrecognized user")
             new HTTP401Error(res, "Invalid username/password");
         }
     });

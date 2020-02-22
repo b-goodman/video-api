@@ -2,7 +2,7 @@ import {Model, model, Document, Schema} from 'mongoose';
 import bcrypt from 'bcrypt';
 
 export interface UserData {
-    name: string;
+    username: string;
     password: string;
 }
 
@@ -12,7 +12,7 @@ interface UserModel extends Model<UserDocument> {}
 
 // schema maps to a collection
 const userSchema = new Schema<UserDocument>({
-    name: {
+    username: {
         type: 'String',
         required: true,
         trim: true,
@@ -32,7 +32,7 @@ userSchema.pre<UserDocument>('save', function(next) {
     } else {
         bcrypt.hash(user.password, 10, function(err, hash) {
             if (err) {
-                console.log('Error hashing password for user', user.name);
+                console.log('Error hashing password for user', user.username);
                 next(err);
             } else {
                 user.password = hash;

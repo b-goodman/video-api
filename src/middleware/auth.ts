@@ -5,11 +5,11 @@ import fs from "fs";
 import path from "path";
 
 export interface AuthenticatedRequest extends Request {
-    user: string
+    username: string
 }
 
 interface JwtPayload extends Object{
-    user: string;
+    username: string;
 }
 
 export const checkUserAuth = (
@@ -46,21 +46,22 @@ export const validateToken = (
         const key = fs.readFileSync( path.join( __dirname, "../../public.key" ), "utf-8");
         jwt.verify(token, key, options, (err, result) => {
             if (err) {
-                console.log("Verification Error", err)
+                console.log("verification error")
                 new HTTP500Error(res, "Verification Error");
             } else {
                 // We call next to pass execution to the subsequent middleware
-                console.log("verification result: ", result)
                 if (result) {
-                    console.log(result);
-                    req.user = (result as JwtPayload).user;
+                    console.log("accpeted user")
+                    req.username = (result as JwtPayload).username;
                     next()
                 }else{
+                    console.log("unauthorized user")
                     new HTTP401Error(res, "Unauthorized");
                 }
             }
         });
     } else {
+        console.log("auth header not present")
         new HTTP401Error(res, "Unauthorized");
     }
 }

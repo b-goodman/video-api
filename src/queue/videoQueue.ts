@@ -1,6 +1,5 @@
 import Queue, {Job} from 'bull';
 import {UploadedFile} from 'express-fileupload';
-import {handleVideoTranscodeCompletion} from "../sockets/handleVideoTranscodeCompletion"
 
 import {
     saveVideoToDisk,
@@ -42,7 +41,7 @@ videoQueue.process( async (job, done) => {
         job.progress({stat: 4, desc: "Removing temp files."});
         await deleteTempUpload(tmpFilepath);
 
-        done(null, {videoData, stat});
+        done(null, stat);
     } catch (err) {
         done(err);
     }

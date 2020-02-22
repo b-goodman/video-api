@@ -85,7 +85,8 @@ videoSchema.index(
 
 interface SearchOpts {
     skip?: number;
-    limit?: number
+    limit?: number;
+    order?: "ascending"|"descending"
 };
 
 interface TextSearchOpts extends SearchOpts {
@@ -103,13 +104,15 @@ interface DateSearchOpts extends SearchOpts {
 videoSchema.statics.dateSearch = async function (opts?:DateSearchOpts): Promise<VideoData[]> {
     const limitUpto = opts ? opts.limit || 0 : 0;
     const skipAmmount = opts ? opts.skip || 0 : 0;
-    return await this.find().sort({dateUploaded: 1}).skip(skipAmmount).limit(limitUpto);
+    const order = opts ? opts.order || "ascending" : "ascending";
+    return await this.find().sort({dateUploaded: order === "ascending" ? 1 : -1}).skip(skipAmmount).limit(limitUpto);
 }
 
 videoSchema.statics.userSearch = async function (ownerUsername: string, opts?:SearchOpts): Promise<VideoData[]> {
     const limitUpto = opts ? opts.limit || 0 : 0;
     const skipAmmount = opts ? opts.skip || 0 : 0;
-    return await this.find({ownerUsername}).sort({dateUploaded: 1}).skip(skipAmmount).limit(limitUpto)
+    const order = opts ? opts.order || "ascending" : "ascending";
+    return await this.find({ownerUsername}).sort({dateUploaded: order === "ascending" ? 1 : -1}).skip(skipAmmount).limit(limitUpto)
 }
 
 export default model<VideoDocument, VideoModel>('Video', videoSchema);

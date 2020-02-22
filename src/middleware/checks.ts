@@ -45,7 +45,7 @@ export const checkUserParams = (
     res: Response,
     next: NextFunction
 ) => {
-    if (!req.body.name || !req.body.password) {
+    if (!req.body.username || !req.body.password) {
         throw new HTTP400Error("Missing parameter");
     } else {
         next();

@@ -18,7 +18,7 @@ export const handleVideoUpload = async (req: AuthenticatedRequest, res: Response
             videoTitle: req.body.title,
             videoTags: req.body.tags || [],
             videoDescription: req.body.description,
-            ownerUsername: req.user,
+            ownerUsername: req.username,
         };
 
         const transcodeProcess = await videoQueue.add(transcodeJobData);

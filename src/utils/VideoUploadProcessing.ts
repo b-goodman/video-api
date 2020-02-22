@@ -2,7 +2,7 @@ import { UploadedFile } from "express-fileupload";
 import shortid from "shortid";
 import videoPreview, { videoFrame } from "@bgoodman/video-preview";
 import ffmpeg from "ffmpeg";
-import fs from "fs";
+import fs from "fs-extra";
 import { promisify } from "util";
 import Video, { VideoData } from "../models/video";
 import path from "path";
@@ -28,15 +28,17 @@ export const saveVideoToDatabase = (videoData: VideoData) => {
 export const saveVideoToDisk = (videoFile: UploadedFile) => {
     return new Promise<{videoID: string, tmpFilepath: string}>( (resolve, reject) => {
         const videoID = shortid.generate();
-        const tmpFilepath = path.join( process.env.DATA_ROOT, videoID, "upload.tmp" );
-        console.log(tmpFilepath);
-        videoFile.mv( tmpFilepath, (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve({videoID, tmpFilepath});
-            }
-        });
+        fs.ensureDir( path.join( process.env.DATA_ROOT, videoID) ).then( () => {
+            const tmpFilepath = path.join( process.env.DATA_ROOT, videoID, "upload.tmp" );
+            console.log(videoFile);
+            fs.move(videoFile.tempFilePath, tmpFilepath, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({videoID, tmpFilepath});
+                }
+            });
+        })
     })
 };
 
@@ -47,7 +49,7 @@ export const createVideoPreviews = async (videoFilepath: string, outputDir: stri
         const previewResp = await videoPreview(videoFilepath, path.join( outputDir, `preview.mp4`), opts );
         console.log("generating preview frame");
         const thumbnailResp = await videoFrame(videoFilepath, path.join( outputDir, `thumbnail.png`), opts );
-        const fileStat = await stat(previewResp.output);
+        const fileStat = await stat(previewResp.output) as any;
         const filesize = fileStat.size;
         return {
             previewPath: previewResp.output,
@@ -72,7 +74,7 @@ export const encodeVideo = (tmpFilepath: string) => {
                 if (err) {
                     reject(err)
                 } else {
-                    const fileStat = await stat(filepath);
+                    const fileStat = await stat(filepath) as any;
                     const filesize = fileStat.size;
                     const {previewPath, previewFilesize, thumbnailPath} = await createVideoPreviews(filepath, path.dirname(tmpFilepath));
                     resolve({filepath, filesize, previewPath, previewFilesize, thumbnailPath, duration})
